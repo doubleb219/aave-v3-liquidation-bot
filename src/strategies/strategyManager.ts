@@ -44,7 +44,7 @@ class StrategyManager {
   public async getMonitoredAddresses(): Promise<string[]> {
     const addresses = new Set<string>();
     // Get the last 10,000 transactions from the Aave contract
-    const response = await axios.get(`https://api.arbiscan.io/api`, {
+    const response = await axios.get(`https://api-sepolia.etherscan.io/api`, {
       params: {
         module: 'account',
         action: 'txlist',
@@ -52,15 +52,16 @@ class StrategyManager {
         startblock: 0,
         endblock: 99999999,
         page: 1,
-        offset: 10000,
+        offset: 10,
         sort: 'desc',
-        apikey: ""
+        apikey: "KZ89J4VBDV2XBYGCYFA56CANT2W7CWVKU4"
       }
     });
     if (response.data.status === '1' && response.data.result) {
       // Extract unique addresses from transactions
+      // console.log(`Found ${response.data.result} transactions`);
       for (const tx of response.data.result) {
-        addresses.add(tx.from.hash.toLowerCase());
+        addresses.add(tx.from.toLowerCase());
       }
     }
     return Array.from(addresses);
