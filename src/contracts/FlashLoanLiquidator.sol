@@ -7,6 +7,7 @@ import {IFlashLoanReceiver} from "@aave/core-v3/contracts/flashloan/interfaces/I
 import {IERC20} from "@aave/core-v3/contracts/dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeERC20} from "@aave/core-v3/contracts/dependencies/openzeppelin/contracts/SafeERC20.sol";
 import "./IPulseXRouter02.sol";
+import "./IPulseXPair.sol";
 /**
  * @title FlashLoanLiquidator
  * @dev Contract to execute liquidations using Aave flash loans
@@ -18,6 +19,7 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
     IPoolAddressesProvider public immutable ADDRESSES_PROVIDER;
     IPool public immutable POOL;
     IPulseXRouter02 pulsexV2Router;
+    IPulseXPair pulsexPair;
 
     /**
      * @dev Constructor
@@ -69,6 +71,8 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
             bool receiveAToken
         ) = abi.decode(params, (address, address, address, uint256, bool));
 
+        // Break LP tokens
+
         // Approve the debt asset to be spent by the pool for liquidation
         IERC20(debtAsset).safeApprove(address(POOL), debtToCover);
 
@@ -112,6 +116,26 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
         }
     }
 
+    function breakLPToken (address lpAddress, uint256 amountToApprove) external onlyOwner {
+        // Break LP tokens by removing liquidity
+        IERC20(lpAddress).safeApprove(address(pulsexV2Router), amountToApprove);
+        pulsexPair = IPulseXPair(lpAddress);
+
+        (address tokenA, address tokenB) = (pulsexPair.token0(), pulsexPair.token1());
+        uint256 liquidity = amountToApprove;
+        (uint256 amountAMin, uint256 amountBMin) = (0, 0);
+        pulsexV2Router.removeLiquidity(
+            tokenA,
+            tokenB,
+            liquidity,
+            amountAMin,
+            amountBMin,
+            address(this),
+            block.timestamp
+        );
+
+    }
+
     /**
      * @dev Allows the owner to rescue any tokens accidentally sent to the contract
      * @param token The address of the token to rescue
@@ -122,6 +146,7 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
             IERC20(token).safeTransfer(owner, balance);
         }
     }
+
 
     /**
      * @dev Allows receiving ETH
