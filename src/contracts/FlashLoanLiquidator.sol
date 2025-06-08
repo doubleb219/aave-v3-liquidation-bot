@@ -72,6 +72,7 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
         ) = abi.decode(params, (address, address, address, uint256, bool));
 
         // Break LP tokens
+        _breakLPTokenAndSwapToDebt(collateralAsset, debtToCover,  debtAsset);
 
         // Approve the debt asset to be spent by the pool for liquidation
         IERC20(debtAsset).safeApprove(address(POOL), debtToCover);
@@ -116,7 +117,13 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
         }
     }
 
-    function breakLPToken (address lpAddress, uint256 amountToApprove) external onlyOwner {
+    /**
+     * @dev Break LP tokens by removing liquidity and swap to debt asset
+     * @param lpAddress The address of the LP token contract
+     * @param amountToApprove The address of debt asset to swap
+     * @param amountToApprove The amount of LP tokens to approve for removal
+     */
+    function _breakLPTokenAndSwapToDebt (address lpAddress, uint256 amountToApprove, address debtAsset) internal {
         // Break LP tokens by removing liquidity
         IERC20(lpAddress).safeApprove(address(pulsexV2Router), amountToApprove);
         pulsexPair = IPulseXPair(lpAddress);
@@ -124,16 +131,48 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
         (address tokenA, address tokenB) = (pulsexPair.token0(), pulsexPair.token1());
         uint256 liquidity = amountToApprove;
         (uint256 amountAMin, uint256 amountBMin) = (0, 0);
-        pulsexV2Router.removeLiquidity(
+        (uint256 amountA, uint256 amountB) = pulsexV2Router.removeLiquidity(
             tokenA,
             tokenB,
             liquidity,
             amountAMin,
             amountBMin,
             address(this),
-            block.timestamp
+            block.timestamp + 1000
         );
+        if (tokenA == debtAsset) {
+            // If tokenA is the debt asset, we only need to swap tokenB
+            _swapToDebtAsset(tokenB, amountB, debtAsset);
+        } else if (tokenB == debtAsset) {
+            // If tokenB is the debt asset, we only need to swap tokenA
+            _swapToDebtAsset(tokenA, amountA, debtAsset);
+        } else {
+            // If neither token is the debt asset, we need to swap both
+            _swapToDebtAsset(tokenB, amountB, debtAsset);
+            _swapToDebtAsset(tokenA, amountA, debtAsset);
+        }
 
+    }
+
+    /**
+     * @dev swap token to exact token
+     * @param inputToken the address of input token
+     * @param amountIn the amount of input token
+     * @param outputToken the amount of output token
+     */
+
+    function _swapToDebtAsset( address inputToken, uint256 amountIn, address outputToken ) internal {
+
+        // Approve the router to spend the tokens
+        IERC20(inputToken).safeApprove(address(pulsexV2Router), amountIn);
+
+        // Define the path for the swap
+        address[] memory path = new address[](2);
+        path[0] = inputToken; // Token to swap from
+        path[1] = outputToken; // Token to swap to
+
+        // Swap tokens using the PulseX router
+        pulsexV2Router.swapExactTokensForTokens(amountIn, 0, path, address(this), block.timestamp + 1000);
     }
 
     /**
