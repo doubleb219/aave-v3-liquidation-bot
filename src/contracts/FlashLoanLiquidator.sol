@@ -6,6 +6,7 @@ import {IPool} from "@aave/core-v3/contracts/interfaces/IPool.sol";
 import {IFlashLoanReceiver} from "@aave/core-v3/contracts/flashloan/interfaces/IFlashLoanReceiver.sol";
 import {IERC20} from "@aave/core-v3/contracts/dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeERC20} from "@aave/core-v3/contracts/dependencies/openzeppelin/contracts/SafeERC20.sol";
+import "./IPulseXRouter02.sol";
 /**
  * @title FlashLoanLiquidator
  * @dev Contract to execute liquidations using Aave flash loans
@@ -16,15 +17,19 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
     address public immutable owner;
     IPoolAddressesProvider public immutable ADDRESSES_PROVIDER;
     IPool public immutable POOL;
+    IPulseXRouter02 pulsexV2Router;
 
     /**
      * @dev Constructor
      * @param provider The address of the Aave PoolAddressesProvider contract
      */
-    constructor(address provider) {
+    constructor(address provider, IPulseXRouter02 _pulsexV2Router) {
         owner = msg.sender;
         ADDRESSES_PROVIDER = IPoolAddressesProvider(provider);
         POOL = IPool(IPoolAddressesProvider(provider).getPool());
+        
+        // initialize the PulseX router
+        pulsexV2Router = IPulseXRouter02(_pulsexV2Router);
     }
 
     /**
