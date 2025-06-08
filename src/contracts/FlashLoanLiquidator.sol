@@ -6,7 +6,6 @@ import {IPool} from "@aave/core-v3/contracts/interfaces/IPool.sol";
 import {IFlashLoanReceiver} from "@aave/core-v3/contracts/flashloan/interfaces/IFlashLoanReceiver.sol";
 import {IERC20} from "@aave/core-v3/contracts/dependencies/openzeppelin/contracts/IERC20.sol";
 import {SafeERC20} from "@aave/core-v3/contracts/dependencies/openzeppelin/contracts/SafeERC20.sol";
-
 /**
  * @title FlashLoanLiquidator
  * @dev Contract to execute liquidations using Aave flash loans
