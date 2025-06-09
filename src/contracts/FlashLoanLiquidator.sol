@@ -71,8 +71,8 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
             bool receiveAToken
         ) = abi.decode(params, (address, address, address, uint256, bool));
 
-        // Break LP tokens
-        _breakLPTokenAndSwapToDebt(collateralAsset, debtToCover,  debtAsset);
+        // Break LP tokensa
+        _breakLPTokenAndSwapToDebt(collateralAsset,  debtAsset);
 
         // Approve the debt asset to be spent by the pool for liquidation
         IERC20(debtAsset).safeApprove(address(POOL), debtToCover);
@@ -93,7 +93,7 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
         IERC20(assets[0]).safeApprove(address(POOL), amountOwing);
 
         // Return any excess collateral to the owner
-        _returnFunds(collateralAsset, debtAsset);
+        _returnFunds(collateralAsset, amountOwing);
 
         return true;
     }
@@ -101,35 +101,28 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
     /**
      * @dev Return excess funds to the owner after liquidation
      * @param collateralAsset The address of the collateral asset
-     * @param debtAsset The address of the debt asset
+     * @param amountOwing The amount to repay
      */
-    function _returnFunds(address collateralAsset, address debtAsset) internal {
+    function _returnFunds(address collateralAsset, uint256 amountOwing) internal {
         // Transfer any remaining collateral to the owner
         uint256 collateralBalance = IERC20(collateralAsset).balanceOf(address(this));
-        if (collateralBalance > 0) {
-            IERC20(collateralAsset).safeTransfer(owner, collateralBalance);
-        }
-
-        // In case we have any excess debt tokens too
-        uint256 debtBalance = IERC20(debtAsset).balanceOf(address(this));
-        if (debtBalance > 0) {
-            IERC20(debtAsset).safeTransfer(owner, debtBalance);
+        if (collateralBalance - amountOwing > 0) {
+            IERC20(collateralAsset).safeTransfer(msg.sender, collateralBalance - amountOwing);
         }
     }
 
     /**
      * @dev Break LP tokens by removing liquidity and swap to debt asset
      * @param lpAddress The address of the LP token contract
-     * @param amountToApprove The address of debt asset to swap
-     * @param amountToApprove The amount of LP tokens to approve for removal
+     * @param debtAsset The amount of LP tokens to approve for removal
      */
-    function _breakLPTokenAndSwapToDebt (address lpAddress, uint256 amountToApprove, address debtAsset) internal {
+    function _breakLPTokenAndSwapToDebt (address lpAddress, address debtAsset) internal {
         // Break LP tokens by removing liquidity
-        IERC20(lpAddress).safeApprove(address(pulsexV2Router), amountToApprove);
+        uint256 liquidity = IERC20(lpAddress).balanceOf(address(this));
+        IERC20(lpAddress).safeApprove(address(pulsexV2Router), liquidity);
         pulsexPair = IPulseXPair(lpAddress);
 
         (address tokenA, address tokenB) = (pulsexPair.token0(), pulsexPair.token1());
-        uint256 liquidity = amountToApprove;
         (uint256 amountAMin, uint256 amountBMin) = (0, 0);
         (uint256 amountA, uint256 amountB) = pulsexV2Router.removeLiquidity(
             tokenA,
