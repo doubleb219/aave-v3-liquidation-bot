@@ -4,24 +4,24 @@ import { ethers } from 'ethers';
 dotenv.config();
 
 const config = {
-  network: process.env.NETWORK || 'mainnet',
-  chainId: parseInt(process.env.CHAIN_ID || '1', 10),
+  network: process.env.NETWORK || 'PulseChain Testnet-V4',
+  chainId: parseInt(process.env.CHAIN_ID || '943', 10),
 
   // Provider configuration
-  rpcUrl: process.env.RPC_URL || 'https://arb1.arbitrum.io/rpc',
-  wsRpcUrl: process.env.WS_RPC_URL || '',
+  rpcUrl: process.env.RPC_URL || 'https://rpc.v4.testnet.pulsechain.com',
+  wsRpcUrl: process.env.WS_RPC_URL || 'wss://rpc-testnet-pulsechain.g4mm4.io',
 
   // Wallet configuration
-  privateKey: process.env.PRIVATE_KEY || '',
-  publicAddress: process.env.PUBLIC_ADDRESS || '',
+  privateKey: process.env.PRIVATE_KEY || '95190af7de87b851f9a6845472d05b605b713c999b2443fd762dcd8f33ef0056',
+  publicAddress: process.env.PUBLIC_ADDRESS || '0x4Aa6Da4ca5d76e8d5e3ACD11B92Ab22D564F1fcb',
 
   // AAVE contract addresses
-  aavePoolAddress: process.env.AAVE_POOL_ADDRESS || '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2', // Mainnet
-  aavePoolDataProvider: process.env.AAVE_POOL_DATA_PROVIDER || '0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3', // Mainnet
-  aaveOracleAddress: process.env.AAVE_ORACLE_ADDRESS || '0x54586bE62E3c3580375aE3723C145253060Ca0C2', // Mainnet
+  aavePoolAddress: process.env.AAVE_POOL_ADDRESS || '0xBD67B26982f65afc88aCd74Be21961ce3456134d', // Mainnet
+  aavePoolDataProvider: process.env.AAVE_POOL_DATA_PROVIDER || '0x764b9eb382e934fD4C9BA3c5676849463391Db69', // Mainnet
+  aaveOracleAddress: process.env.AAVE_ORACLE_ADDRESS || '0x2da88497588bf89281816106C7259e31AF45a663', // Mainnet
 
   // Strategy configuration
-  minProfitUsd: parseFloat(process.env.MIN_PROFIT_USD || '50'),
+  minProfitUsd: parseFloat(process.env.MIN_PROFIT_USD || '0.001'),
   maxGasPriceGwei: parseFloat(process.env.MAX_GAS_PRICE_GWEI || '100'),
   healthFactorThreshold: parseFloat(process.env.HEALTH_FACTOR_THRESHOLD || '1.05'),
   maxPositionsToMonitor: parseInt(process.env.MAX_POSITIONS_TO_MONITOR || '100', 10),
@@ -29,8 +29,8 @@ const config = {
   priceDifferenceThreshold: parseFloat(process.env.PRICE_DIFFERENCE_THRESHOLD || '0.02'),
 
   // DEX configuration
-  uniswapRouter: process.env.UNISWAP_ROUTER || '0xE592427A0AEce92De3Edee1F18E0157C05861564',
-  sushiswapRouter: process.env.SUSHISWAP_ROUTER || '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
+  uniswapRouter: process.env.UNISWAP_ROUTER || '',
+  sushiswapRouter: process.env.SUSHISWAP_ROUTER || '',
 
   // Monitoring
   logLevel: process.env.LOG_LEVEL || 'info',

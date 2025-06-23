@@ -99,7 +99,6 @@ class HealthFactorMonitor {
       };
 
       this.reservesData.set(asset, reserveInfo);
-      // console.log("reserveinfo", reserveInfo);
       return reserveInfo;
     } catch (error) {
       logger.error(`Failed to get reserve info for ${asset}:`, error);
@@ -139,7 +138,6 @@ class HealthFactorMonitor {
 
       // Get E-Mode category ID
       const eModeCategoryId = await this.pool.getUserEMode(userAddress);
-
       // Initialize arrays for collateral and debt assets
       const collateralAssets: Asset[] = [];
       const debtAssets: Asset[] = [];
@@ -216,6 +214,7 @@ class HealthFactorMonitor {
             ethers.utils.parseUnits(config.healthFactorThreshold.toString(), 18)
           )
         ) {
+          console.log('HF < 1 address', address)
           const detailedPosition = await this.getUserDetailedPosition(address);
           targets.push(detailedPosition);
 

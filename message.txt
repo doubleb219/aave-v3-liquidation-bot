@@ -1,0 +1,77 @@
+Accounts after deployment
+========
+┌─────────┬──────────────────────────────────┬──────────────────────────────────────────────┬─────────────────────────┐
+│ (index) │               name               │                   account                    │         balance         │
+├─────────┼──────────────────────────────────┼──────────────────────────────────────────────┼─────────────────────────┤
+│    0    │            'deployer'            │ '0x4Aa6Da4ca5d76e8d5e3ACD11B92Ab22D564F1fcb' │ '19.762170959925815569' │
+│    1    │            'aclAdmin'            │ '0x4Aa6Da4ca5d76e8d5e3ACD11B92Ab22D564F1fcb' │ '19.762170959925815569' │
+│    2    │         'emergencyAdmin'         │ '0x4Aa6Da4ca5d76e8d5e3ACD11B92Ab22D564F1fcb' │ '19.762170959925815569' │
+│    3    │           'poolAdmin'            │ '0x4Aa6Da4ca5d76e8d5e3ACD11B92Ab22D564F1fcb' │ '19.762170959925815569' │
+│    4    │ 'addressesProviderRegistryOwner' │ '0x4Aa6Da4ca5d76e8d5e3ACD11B92Ab22D564F1fcb' │ '19.762170959925815569' │
+│    5    │       'treasuryProxyAdmin'       │ '0x1D68EF2f0c12cDeb996A598967d9365c5E09bFAC' │          '0.0'          │
+│    6    │      'incentivesProxyAdmin'      │ '0x1D68EF2f0c12cDeb996A598967d9365c5E09bFAC' │          '0.0'          │
+│    7    │   'incentivesEmissionManager'    │ '0x4Aa6Da4ca5d76e8d5e3ACD11B92Ab22D564F1fcb' │ '19.762170959925815569' │
+│    8    │     'incentivesRewardsVault'     │ '0x4Aa6Da4ca5d76e8d5e3ACD11B92Ab22D564F1fcb' │ '19.762170959925815569' │
+└─────────┴──────────────────────────────────┴──────────────────────────────────────────────┴─────────────────────────┘
+
+Deployments
+===========
+┌─────────────────────────────────────────┬──────────────────────────────────────────────┐
+│                 (index)                 │                   address                    │
+├─────────────────────────────────────────┼──────────────────────────────────────────────┤
+│         ACLManager-PulseSepolia         │ '0x7BB337ADE0cb6Ed0E6A77886Df8C17D66c5E738c' │
+│           AToken-PulseSepolia           │ '0x5F9Fc3C9DeE67E8F2DBE83c333285064855E42d9' │
+│         AaveOracle-PulseSepolia         │ '0x9cBB23F4C61001f9e69A6859b09027BeF7319A7e' │
+│               BorrowLogic               │ '0x65b30ED9e371F6C8f2911E45EAd8436f585b7bAb' │
+│               BridgeLogic               │ '0xE777ccc23daEAc1980d58c73406e4AB3bFe72041' │
+│              CalldataLogic              │ '0x921EE05F8543014C9DbFd776A898076dBc8DC83C' │
+│            ConfiguratorLogic            │ '0xaE04849Fa4d4B88fc5B58b709065783D0A7Aaea3' │
+│   DelegationAwareAToken-PulseSepolia    │ '0xE3325dA58E35b2c7c8ff1E1B132717C7a57ecCa9' │
+│               EModeLogic                │ '0xA04c070558051fC5322C6C691E8f93E605512027' │
+│             EmissionManager             │ '0x7dB22AeA14c8f55CA7Ed683036E698054EAD9176' │
+│             FlashLoanLogic              │ '0x9DD80cB340c57EBD0A44c234c813E7c8Cb3684c8' │
+│             IncentivesProxy             │ '0x6bBa78d9e01455b9b9bd433eE8bEf19a9959144C' │
+│       IncentivesV2-Implementation       │ '0x655C6fe53daB52B5C59cD69718b3787Ab935ab5D' │
+│                L2Encoder                │ '0xa1fdCA101f63Cf1004856081075b8d3d8b649a76' │
+│          L2Pool-Implementation          │ '0x2F1ba6b75be09A3C8e17c3cA8A72412c6B8ccCc9' │
+│            LiquidationLogic             │ '0x0Ff22d03CE678b2367cbdD560e4a897292f8D3dc' │
+│           PDAIF-PulseSepolia            │ '0xf71fD053f8DfAb81495620BDfe094f083e238B22' │
+│            PLSF-PulseSepolia            │ '0xd8e84bd0c67e0775d33bff82b2e5a486d1c1666e' │
+│       PLSFFLP-AToken-PulseSepolia       │ '0x37a18a02a36D64256d7213AD7aB80d81f6BD41f6' │
+│  PLSFFLP-StableDebtToken-PulseSepolia   │ '0x5B672502403eEb17f8C84845CC7dbcf9CF761e65' │
+│ PLSFFLP-VariableDebtToken-PulseSepolia  │ '0x748AB63D30AB39615Cd6BeAa816e5F93b722632e' │
+│        PLSX-AToken-PulseSepolia         │ '0x3D5ab834C0e09646Ed30641282aD3EF4F055705b' │
+│    PLSX-StableDebtToken-PulseSepolia    │ '0x913885DB147F3a0E8D4cba1709D0CE3eEf2EE704' │
+│   PLSX-VariableDebtToken-PulseSepolia   │ '0x1D29BcD53867763a70824BB99c0Ac211637be02f' │
+│           PLSXF-PulseSepolia            │ '0x219Ac131A00a7C5D8ee19D178B81a63575e3E23c' │
+│       PLSXFLP-AToken-PulseSepolia       │ '0xfcD1ded836Abb243bB1b37f259E31978bAAE5f26' │
+│  PLSXFLP-StableDebtToken-PulseSepolia   │ '0xcb48E082b555ea84808135CDAD9763B0c5467B9E' │
+│ PLSXFLP-VariableDebtToken-PulseSepolia  │ '0x6B624c71C45Ce7e73fB1BE394590E7C6a4d68D90' │
+│         Pool-Proxy-PulseSepolia         │ '0x0Dbd9b1DA93B6BE9B0c176C52D0CC1473F8255e1' │
+│   PoolAddressesProvider-PulseSepolia    │ '0x0C1Bdb8fc6FaC25c762C434858aC00a7C2e9Cc64' │
+│      PoolAddressesProviderRegistry      │ '0x638EecdcF95772545d2e45B1Ad050D4e92364DCd' │
+│     PoolConfigurator-Implementation     │ '0xa19f263aA7439dbBc94bFd38DF0dec689664398b' │
+│   PoolConfigurator-Proxy-PulseSepolia   │ '0x1eae842a8b2e728263E589E00b3450D42FC89a5C' │
+│      PoolDataProvider-PulseSepolia      │ '0x75ed3C727Bc077e753C6E798Bf7Ba24c2E2999D0' │
+│                PoolLogic                │ '0x616817A4881Ce8b94998c95476E52c95215cf64e' │
+│   ReserveStrategy-rateStrategyStable    │ '0xC63A139C799671C3f9cc582445A6e75F5B51D111' │
+│  ReserveStrategy-rateStrategyStableOne  │ '0x4bc3f6779Be9200Eb85a6e03538e6A54792c1ff0' │
+│  ReserveStrategy-rateStrategyStableTwo  │ '0x895896a9079939B1a948E080cC5a531dFDB33447' │
+│ ReserveStrategy-rateStrategyVolatileOne │ '0x164118819b39fD226798d608822fE67Eb15c7805' │
+│           ReservesSetupHelper           │ '0x5c86a977Cc6fcBdE8EEEfdD21C1B41EBaE6C7b07' │
+│      StableDebtToken-PulseSepolia       │ '0x8f9F33595fC5dc6A3e0dB4143d677fa00C7D29B7' │
+│               SupplyLogic               │ '0x56a89b2125Df16a1f683CD9Bf197a5B7D3A082C8' │
+│         TWAPOracle-PulseSepolia         │ '0xC27A5eCDadddDE96913D424c36E25E2BE4fC9531' │
+│           Treasury-Controller           │ '0x1007761302686f0F42A66fd44321AdA7A7C9c90b' │
+│         Treasury-Implementation         │ '0xAc82cd531a796590bcCACC2a37c98e37C3115568' │
+│              TreasuryProxy              │ '0xE988564a40AFF91123B54fEb7554aEA7e37eD7E5' │
+│        UiIncentiveDataProviderV3        │ '0xa3cE482F4C6b39EdF0dC689100BB73aB45b54A19' │
+│          UiPoolDataProviderV3           │ '0xe71F4959D95f046F2F30257c4f3d90460E216DFa' │
+│     VariableDebtToken-PulseSepolia      │ '0x85eC15f0719Fc2fA198662536b52AF5135F44c67' │
+│        WPLS-AToken-PulseSepolia         │ '0xBb7EDBe7C66B4C164b3C9605Be5f41A6577555B4' │
+│    WPLS-StableDebtToken-PulseSepolia    │ '0xBa3Db6e8b801c7CfA7dE8B75FaF998d5b921b9A7' │
+│   WPLS-VariableDebtToken-PulseSepolia   │ '0xda815Af65303Da6e87f82E163760D3a9DEd07c8e' │
+│          WalletBalanceProvider          │ '0xf74cb9Af7095eb7738c600edE6371DEdF840fe09' │
+│          WrappedTokenGatewayV3          │ '0xF91000d03837e48118F02D6fa86C9766462661dA' |
+│ 			Flashloan							| '0xA0CEE3459bFd6C3372EF75D423904A475564e8b1' |
+└─────────────────────────────────────────┴──────────────────────────────────────────────┘

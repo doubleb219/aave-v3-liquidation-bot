@@ -27,6 +27,7 @@ class Liquidator {
   private provider: ethers.providers.Provider;
   private wallet: ethers.Wallet | null;
   private pool: Contract;
+  private ws: Contract;
   private flashLoanExecutor: Contract;
 
   // Flash loan premium percentage (e.g., 0.09% = 9/10000)
@@ -39,6 +40,7 @@ class Liquidator {
     }
 
     this.provider = config.provider;
+    console.log("network", this.provider.getNetwork);
     this.wallet = config.wallet;
 
     this.pool = new ethers.Contract(
@@ -46,10 +48,15 @@ class Liquidator {
       POOL_ABI,
       this.wallet
     );
+    this.ws = new ethers.Contract(
+      "0xD9CFA36df05F3f4DF9Bb3DA5DA3520A8e69bdD3A",
+      ERC20_ABI,
+      this.wallet
+    )
 
     // The flash loan executor contract address should be deployed separately
     this.flashLoanExecutor = new ethers.Contract(
-      '0x...', // Replace with your deployed flash loan executor address
+      '0x2582fC2C46b932A369C49AbEF59a9Ff1Bbb358C0 ', // Replace with your deployed flash loan executor address
       FLASH_LOAN_EXECUTOR_ABI,
       this.wallet
     );
@@ -108,12 +115,13 @@ class Liquidator {
       const gasPrice = await this.provider.getGasPrice();
       const gasLimit = 1000000; // Adjust based on your contract's gas usage
       const gasCostWei = gasPrice.mul(gasLimit);
-      const ethPriceUsd = parseFloat(
-        ethers.utils.formatUnits(
-          (await priceMonitor.getPriceData(config.aavePoolAddress)).aaveOraclePrice,
-          8
-        )
-      );
+      // const ethPriceUsd = parseFloat(
+      //   ethers.utils.formatUnits(
+      //     (await priceMonitor.getPriceData(config.aavePoolAddress)).aaveOraclePrice,
+      //     8
+      //   )
+      // );
+      const ethPriceUsd = 0
       const gasCostUsd = parseFloat(ethers.utils.formatEther(gasCostWei)) * ethPriceUsd;
 
       // Calculate net profit
@@ -122,7 +130,6 @@ class Liquidator {
 
       // Calculate execution priority (higher = more profitable)
       const executionPriority = profitable ? (netProfitUsd / debtAmountUsd) * 100 : 0;
-
       return {
         target,
         debtAsset,
@@ -148,6 +155,7 @@ class Liquidator {
   public async executeLiquidation(
     calculation: LiquidationProfitCalculation
   ): Promise<ExecutionResult> {
+    const network = await ethers.providers.getNetwork(943)
     try {
       const { target, debtAsset, collateralAsset, debtToCover } = calculation;
 
@@ -162,7 +170,6 @@ class Liquidator {
           false // Don't receive aToken, receive the underlying asset instead
         ]
       );
-
       // Setup flash loan params
       const flashLoanParams: FlashLoanParams = {
         assets: [debtAsset.address],
@@ -185,8 +192,20 @@ class Liquidator {
           timestamp: Date.now()
         };
       }
+      // console.log("start ws trx");
+      // const trx = await this.ws.approve(this.pool.address, 10000);
+      // const rec = await trx.wait(1);
+      // console.log("ws trx", rec.transactionHash);
 
       // Execute flash loan
+      console.log(flashLoanParams.receiver)
+      console.log(flashLoanParams.assets)
+      console.log(flashLoanParams.amounts)
+      console.log(flashLoanParams.interestRateModes)
+      console.log(this.wallet!.address)
+      console.log(flashLoanParams.params)
+      console.log(flashLoanParams.referralCode)
+      console.log(currentGasPrice)
       const tx = await this.pool.flashLoan(
         flashLoanParams.receiver,
         flashLoanParams.assets,

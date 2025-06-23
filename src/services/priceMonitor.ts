@@ -26,7 +26,7 @@ class PriceMonitor {
   private WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
   private USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
   private DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F';
-  
+
   constructor() {
     config.initProvider();
     if (!config.provider) {
@@ -61,80 +61,79 @@ class PriceMonitor {
     try {
       // Get price from Aave Oracle
       const aaveOraclePrice = await this.priceOracle.getAssetPrice(assetAddress);
-      
+
       // Get DEX price if possible (using a standard amount like 1 ETH)
-      let dexPrice: BigNumber | undefined;
-      try {
-        const amountIn = ethers.utils.parseEther('1'); // 1 ETH for pricing
-        if (assetAddress.toLowerCase() !== this.WETH.toLowerCase()) {
-          // For non-ETH assets, get price relative to ETH
-          const calldata = this.uniswapQuoter.interface.encodeFunctionData(
-            'quoteExactInputSingle',
-            [this.WETH, assetAddress, 3000, amountIn, 0]
-          );
-          
-          // Use callStatic to simulate the call without sending a transaction
-          const result = await this.provider.call({
-            to: this.uniswapQuoter.address,
-            data: calldata
-          });
-          
-          const decodedResult = this.uniswapQuoter.interface.decodeFunctionResult(
-            'quoteExactInputSingle',
-            result
-          );
-          
-          dexPrice = decodedResult[0];
-        }
-      } catch (error) {
-        logger.debug(`Failed to get DEX price for ${assetAddress}: ${error}`);
-      }
-      
+      // let dexPrice: BigNumber | undefined;
+      // try {
+      //   const amountIn = ethers.utils.parseEther('1'); // 1 ETH for pricing
+      //   if (assetAddress.toLowerCase() !== this.WETH.toLowerCase()) {
+      //     // For non-ETH assets, get price relative to ETH
+      //     const calldata = this.uniswapQuoter.interface.encodeFunctionData(
+      //       'quoteExactInputSingle',
+      //       [this.WETH, assetAddress, 3000, amountIn, 0]
+      //     );
+
+      //     // Use callStatic to simulate the call without sending a transaction
+      //     const result = await this.provider.call({
+      //       to: this.uniswapQuoter.address,
+      //       data: calldata
+      //     });
+
+      //     const decodedResult = this.uniswapQuoter.interface.decodeFunctionResult(
+      //       'quoteExactInputSingle',
+      //       result
+      //     );
+
+      //     dexPrice = decodedResult[0];
+      //   }
+      // } catch (error) {
+      //   logger.debug(`Failed to get DEX price for ${assetAddress}: ${error}`);
+      // }
+
       // Get price from external API (e.g. CoinGecko)
-      let externalApiPrice: BigNumber | undefined;
-      try {
-        const apiResponse = await this.getExternalPrice(assetAddress);
-        if (apiResponse) {
-          // Convert to the same format as Aave Oracle (scaled by 1e8)
-          externalApiPrice = ethers.utils.parseUnits(
-            apiResponse.toString(),
-            8
-          );
-        }
-      } catch (error) {
-        logger.debug(`Failed to get external API price for ${assetAddress}: ${error}`);
-      }
-      
+      // let externalApiPrice: BigNumber | undefined;
+      // try {
+      //   const apiResponse = await this.getExternalPrice(assetAddress);
+      //   if (apiResponse) {
+      //     // Convert to the same format as Aave Oracle (scaled by 1e8)
+      //     externalApiPrice = ethers.utils.parseUnits(
+      //       apiResponse.toString(),
+      //       8
+      //     );
+      //   }
+      // } catch (error) {
+      //   logger.debug(`Failed to get external API price for ${assetAddress}: ${error}`);
+      // }
+
       // Calculate discrepancy percentage between Aave Oracle and other sources
-      let discrepancyPercentage: number | undefined;
-      if (aaveOraclePrice && externalApiPrice) {
-        const aavePrice = parseFloat(ethers.utils.formatUnits(aaveOraclePrice, 8));
-        const extPrice = parseFloat(ethers.utils.formatUnits(externalApiPrice, 8));
-        
-        if (extPrice > 0) {
-          discrepancyPercentage = Math.abs((aavePrice - extPrice) / extPrice) * 100;
-        }
-      }
-      
+      // let discrepancyPercentage: number | undefined;
+      // if (aaveOraclePrice && externalApiPrice) {
+      //   const aavePrice = parseFloat(ethers.utils.formatUnits(aaveOraclePrice, 8));
+      //   const extPrice = parseFloat(ethers.utils.formatUnits(externalApiPrice, 8));
+
+      //   if (extPrice > 0) {
+      //     discrepancyPercentage = Math.abs((aavePrice - extPrice) / extPrice) * 100;
+      //   }
+      // }
+
       const priceData: PriceData = {
         assetAddress,
         aaveOraclePrice,
-        dexPrice,
-        externalApiPrice,
+        // dexPrice,
+        // externalApiPrice,
         timestamp: Date.now(),
-        discrepancyPercentage
+        // discrepancyPercentage
       };
-      
+
       // Cache the price data
       this.priceCache.set(assetAddress, priceData);
-      
       return priceData;
     } catch (error) {
       logger.error(`Error getting price data for ${assetAddress}:`, error);
       throw error;
     }
   }
-  
+
   /**
    * Get price data for multiple assets at once
    */
@@ -142,60 +141,59 @@ class PriceMonitor {
     try {
       // Get prices from Aave Oracle in batch
       const aaveOraclePrices = await this.priceOracle.getAssetsPrices(assetAddresses);
-      
+
       // Create price data for each asset
       const pricesData: PriceData[] = [];
-      
+
       for (let i = 0; i < assetAddresses.length; i++) {
         const assetAddress = assetAddresses[i];
         const aaveOraclePrice = aaveOraclePrices[i];
-        
+
         // Try to get external price 
         // (we're not doing DEX prices in batch to keep it simpler)
-        let externalApiPrice: BigNumber | undefined;
-        try {
-          const apiResponse = await this.getExternalPrice(assetAddress);
-          if (apiResponse) {
-            externalApiPrice = ethers.utils.parseUnits(
-              apiResponse.toString(),
-              8
-            );
-          }
-        } catch (error) {
-          logger.debug(`Failed to get external API price for ${assetAddress}: ${error}`);
-        }
-        
+        // let externalApiPrice: BigNumber | undefined;
+        // try {
+        //   const apiResponse = await this.getExternalPrice(assetAddress);
+        //   if (apiResponse) {
+        //     externalApiPrice = ethers.utils.parseUnits(
+        //       apiResponse.toString(),
+        //       8
+        //     );
+        //   }
+        // } catch (error) {
+        //   logger.debug(`Failed to get external API price for ${assetAddress}: ${error}`);
+        // }
+
         // Calculate discrepancy percentage
-        let discrepancyPercentage: number | undefined;
-        if (aaveOraclePrice && externalApiPrice) {
-          const aavePrice = parseFloat(ethers.utils.formatUnits(aaveOraclePrice, 8));
-          const extPrice = parseFloat(ethers.utils.formatUnits(externalApiPrice, 8));
-          
-          if (extPrice > 0) {
-            discrepancyPercentage = Math.abs((aavePrice - extPrice) / extPrice) * 100;
-          }
-        }
-        
+        // let discrepancyPercentage: number | undefined;
+        // if (aaveOraclePrice && externalApiPrice) {
+        //   const aavePrice = parseFloat(ethers.utils.formatUnits(aaveOraclePrice, 8));
+        //   const extPrice = parseFloat(ethers.utils.formatUnits(externalApiPrice, 8));
+
+        //   if (extPrice > 0) {
+        //     discrepancyPercentage = Math.abs((aavePrice - extPrice) / extPrice) * 100;
+        //   }
+        // }
+
         const priceData: PriceData = {
           assetAddress,
           aaveOraclePrice,
-          externalApiPrice,
+          // externalApiPrice,
           timestamp: Date.now(),
-          discrepancyPercentage
+          // discrepancyPercentage
         };
-        
+
         // Cache the price data
         this.priceCache.set(assetAddress, priceData);
         pricesData.push(priceData);
       }
-      
       return pricesData;
     } catch (error) {
       logger.error(`Error getting prices data:`, error);
       throw error;
     }
   }
-  
+
   /**
    * Get price from external API (e.g. CoinGecko)
    */
@@ -208,13 +206,13 @@ class PriceMonitor {
         [this.DAI.toLowerCase()]: 'dai',
         // Add more tokens as needed
       };
-      
+
       const tokenId = tokenIdMap[assetAddress.toLowerCase()];
       if (!tokenId) {
         logger.debug(`No external API mapping for ${assetAddress}`);
         return undefined;
       }
-      
+
       // Use CoinGecko API to get the price
       const response = await axios.get(
         `https://api.coingecko.com/api/v3/simple/price?ids=${tokenId}&vs_currencies=usd`,
@@ -224,28 +222,28 @@ class PriceMonitor {
           } : undefined
         }
       );
-      
+
       if (response.data && response.data[tokenId] && response.data[tokenId].usd) {
         return response.data[tokenId].usd;
       }
-      
+
       return undefined;
     } catch (error) {
       logger.error(`Error fetching external price for ${assetAddress}:`, error);
       return undefined;
     }
   }
-  
+
   /**
    * Check if there's a significant price discrepancy for an asset
    */
   public hasPriceDiscrepancy(assetAddress: string): boolean {
     const cachedPrice = this.priceCache.get(assetAddress);
-    
+
     if (!cachedPrice || !cachedPrice.discrepancyPercentage) {
       return false;
     }
-    
+
     return cachedPrice.discrepancyPercentage > config.priceDifferenceThreshold;
   }
 }

@@ -23,6 +23,7 @@ class StrategyManager {
   public async initialize(): Promise<void> {
     try {
       // Initialize health factor monitor
+
       await healthFactorMonitor.initialize();
 
       // Load known addresses (this could be loaded from a DB or file)
@@ -44,24 +45,19 @@ class StrategyManager {
   public async getMonitoredAddresses(): Promise<string[]> {
     const addresses = new Set<string>();
     // Get the last 10,000 transactions from the Aave contract
-    const response = await axios.get(`https://api-sepolia.etherscan.io/api`, {
+    const response = await axios.get(`https://api.scan.v4.testnet.pulsechain.com/api/v2/addresses/${config.aavePoolAddress}/transactions`, {
       params: {
-        module: 'account',
-        action: 'txlist',
-        address: config.aavePoolAddress,
-        startblock: 0,
-        endblock: 99999999,
-        page: 1,
-        offset: 10,
-        sort: 'desc',
-        apikey: "KZ89J4VBDV2XBYGCYFA56CANT2W7CWVKU4"
+        filter: 'to | from'
+      },
+      headers: {
+        'accept': 'application/json'
       }
     });
-    if (response.data.status === '1' && response.data.result) {
+    if (response.status === 200 && response.data.items) {
       // Extract unique addresses from transactions
       // console.log(`Found ${response.data.result} transactions`);
-      for (const tx of response.data.result) {
-        addresses.add(tx.from.toLowerCase());
+      for (const tx of response.data.items) {
+        addresses.add(tx.from.hash.toLowerCase());
       }
     }
     return Array.from(addresses);
@@ -83,6 +79,8 @@ class StrategyManager {
 
     // Initial scan for low health factors
     await this.scanForOpportunities();
+    logger.info('scan completed');
+
 
     // Set up continuous monitoring
     this.continuousMonitoring();
@@ -106,6 +104,7 @@ class StrategyManager {
       // Scan for liquidation opportunities
       await this.scanForOpportunities();
 
+      console.log("execute strategy")
       // Execute liquidations if profitable
       await this.executeStrategy();
 
@@ -171,7 +170,6 @@ class StrategyManager {
             debtAsset,
             collateralAsset
           );
-
           // Log the result
           if (profitCalculation.profitable) {
             logger.info(`Found profitable liquidation opportunity:
