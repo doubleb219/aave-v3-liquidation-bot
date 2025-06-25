@@ -215,6 +215,7 @@ class HealthFactorMonitor {
           )
         ) {
           console.log('HF < 1 address', address)
+          console.log('HF < 1 userData', ethers.utils.formatEther(userData.healthFactor))
           const detailedPosition = await this.getUserDetailedPosition(address);
           targets.push(detailedPosition);
 

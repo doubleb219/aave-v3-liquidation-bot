@@ -71,9 +71,6 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
             bool receiveAToken
         ) = abi.decode(params, (address, address, address, uint256, bool));
 
-        // Break LP tokensa
-        _breakLPTokenAndSwapToDebt(collateralAsset,  debtAsset);
-
         // Approve the debt asset to be spent by the pool for liquidation
         IERC20(debtAsset).safeApprove(address(POOL), debtToCover);
 
@@ -86,6 +83,9 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
             receiveAToken
         );
 
+        // Break LP tokensa
+        _breakLPTokenAndSwapToDebt(collateralAsset,  debtAsset);
+
         // Calculate total amount to repay
         uint256 amountOwing = amounts[0] + premiums[0];
 
@@ -93,21 +93,21 @@ contract FlashLoanLiquidator is IFlashLoanReceiver {
         IERC20(assets[0]).safeApprove(address(POOL), amountOwing);
 
         // Return any excess collateral to the owner
-        _returnFunds(collateralAsset, amountOwing);
+        _returnFunds(assets[0], amountOwing);
 
         return true;
     }
 
     /**
      * @dev Return excess funds to the owner after liquidation
-     * @param collateralAsset The address of the collateral asset
+     * @param asset The address of the collateral asset
      * @param amountOwing The amount to repay
      */
-    function _returnFunds(address collateralAsset, uint256 amountOwing) internal {
+    function _returnFunds(address asset, uint256 amountOwing) internal {
         // Transfer any remaining collateral to the owner
-        uint256 collateralBalance = IERC20(collateralAsset).balanceOf(address(this));
-        if (collateralBalance - amountOwing > 0) {
-            IERC20(collateralAsset).safeTransfer(msg.sender, collateralBalance - amountOwing);
+        uint256 balance = IERC20(asset).balanceOf(address(this));
+        if (balance - amountOwing > 0) {
+            IERC20(asset).safeTransfer(msg.sender, balance - amountOwing);
         }
     }
 

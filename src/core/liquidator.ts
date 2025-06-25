@@ -27,7 +27,6 @@ class Liquidator {
   private provider: ethers.providers.Provider;
   private wallet: ethers.Wallet | null;
   private pool: Contract;
-  private ws: Contract;
   private flashLoanExecutor: Contract;
 
   // Flash loan premium percentage (e.g., 0.09% = 9/10000)
@@ -40,7 +39,6 @@ class Liquidator {
     }
 
     this.provider = config.provider;
-    console.log("network", this.provider.getNetwork);
     this.wallet = config.wallet;
 
     this.pool = new ethers.Contract(
@@ -48,15 +46,10 @@ class Liquidator {
       POOL_ABI,
       this.wallet
     );
-    this.ws = new ethers.Contract(
-      "0xD9CFA36df05F3f4DF9Bb3DA5DA3520A8e69bdD3A",
-      ERC20_ABI,
-      this.wallet
-    )
 
     // The flash loan executor contract address should be deployed separately
     this.flashLoanExecutor = new ethers.Contract(
-      '0x2582fC2C46b932A369C49AbEF59a9Ff1Bbb358C0 ', // Replace with your deployed flash loan executor address
+      '0xa653ddBAAec984570F5428b0604Ebd38f9df65Ea', // Replace with your deployed flash loan executor address
       FLASH_LOAN_EXECUTOR_ABI,
       this.wallet
     );
@@ -155,10 +148,10 @@ class Liquidator {
   public async executeLiquidation(
     calculation: LiquidationProfitCalculation
   ): Promise<ExecutionResult> {
-    const network = await ethers.providers.getNetwork(943)
     try {
       const { target, debtAsset, collateralAsset, debtToCover } = calculation;
-
+      console.log("debtAsset address", debtAsset.address);
+      console.log("collateralAsset address", collateralAsset.address);
       // Encode params for the flash loan executor
       const params = ethers.utils.defaultAbiCoder.encode(
         ['address', 'address', 'address', 'uint256', 'bool'],
@@ -192,20 +185,9 @@ class Liquidator {
           timestamp: Date.now()
         };
       }
-      // console.log("start ws trx");
-      // const trx = await this.ws.approve(this.pool.address, 10000);
-      // const rec = await trx.wait(1);
-      // console.log("ws trx", rec.transactionHash);
-
+      console.log("flashLoanParams assets", flashLoanParams.assets);
+      console.log("flashLoanParams amount", flashLoanParams.amounts.map((amount) => ethers.utils.formatUnits(amount)));
       // Execute flash loan
-      console.log(flashLoanParams.receiver)
-      console.log(flashLoanParams.assets)
-      console.log(flashLoanParams.amounts)
-      console.log(flashLoanParams.interestRateModes)
-      console.log(this.wallet!.address)
-      console.log(flashLoanParams.params)
-      console.log(flashLoanParams.referralCode)
-      console.log(currentGasPrice)
       const tx = await this.pool.flashLoan(
         flashLoanParams.receiver,
         flashLoanParams.assets,
