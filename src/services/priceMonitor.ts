@@ -62,60 +62,6 @@ class PriceMonitor {
       // Get price from Aave Oracle
       const aaveOraclePrice = await this.priceOracle.getAssetPrice(assetAddress);
 
-      // Get DEX price if possible (using a standard amount like 1 ETH)
-      // let dexPrice: BigNumber | undefined;
-      // try {
-      //   const amountIn = ethers.utils.parseEther('1'); // 1 ETH for pricing
-      //   if (assetAddress.toLowerCase() !== this.WETH.toLowerCase()) {
-      //     // For non-ETH assets, get price relative to ETH
-      //     const calldata = this.uniswapQuoter.interface.encodeFunctionData(
-      //       'quoteExactInputSingle',
-      //       [this.WETH, assetAddress, 3000, amountIn, 0]
-      //     );
-
-      //     // Use callStatic to simulate the call without sending a transaction
-      //     const result = await this.provider.call({
-      //       to: this.uniswapQuoter.address,
-      //       data: calldata
-      //     });
-
-      //     const decodedResult = this.uniswapQuoter.interface.decodeFunctionResult(
-      //       'quoteExactInputSingle',
-      //       result
-      //     );
-
-      //     dexPrice = decodedResult[0];
-      //   }
-      // } catch (error) {
-      //   logger.debug(`Failed to get DEX price for ${assetAddress}: ${error}`);
-      // }
-
-      // Get price from external API (e.g. CoinGecko)
-      // let externalApiPrice: BigNumber | undefined;
-      // try {
-      //   const apiResponse = await this.getExternalPrice(assetAddress);
-      //   if (apiResponse) {
-      //     // Convert to the same format as Aave Oracle (scaled by 1e8)
-      //     externalApiPrice = ethers.utils.parseUnits(
-      //       apiResponse.toString(),
-      //       8
-      //     );
-      //   }
-      // } catch (error) {
-      //   logger.debug(`Failed to get external API price for ${assetAddress}: ${error}`);
-      // }
-
-      // Calculate discrepancy percentage between Aave Oracle and other sources
-      // let discrepancyPercentage: number | undefined;
-      // if (aaveOraclePrice && externalApiPrice) {
-      //   const aavePrice = parseFloat(ethers.utils.formatUnits(aaveOraclePrice, 8));
-      //   const extPrice = parseFloat(ethers.utils.formatUnits(externalApiPrice, 8));
-
-      //   if (extPrice > 0) {
-      //     discrepancyPercentage = Math.abs((aavePrice - extPrice) / extPrice) * 100;
-      //   }
-      // }
-
       const priceData: PriceData = {
         assetAddress,
         aaveOraclePrice,
@@ -149,31 +95,6 @@ class PriceMonitor {
         const assetAddress = assetAddresses[i];
         const aaveOraclePrice = aaveOraclePrices[i];
 
-        // Try to get external price 
-        // (we're not doing DEX prices in batch to keep it simpler)
-        // let externalApiPrice: BigNumber | undefined;
-        // try {
-        //   const apiResponse = await this.getExternalPrice(assetAddress);
-        //   if (apiResponse) {
-        //     externalApiPrice = ethers.utils.parseUnits(
-        //       apiResponse.toString(),
-        //       8
-        //     );
-        //   }
-        // } catch (error) {
-        //   logger.debug(`Failed to get external API price for ${assetAddress}: ${error}`);
-        // }
-
-        // Calculate discrepancy percentage
-        // let discrepancyPercentage: number | undefined;
-        // if (aaveOraclePrice && externalApiPrice) {
-        //   const aavePrice = parseFloat(ethers.utils.formatUnits(aaveOraclePrice, 8));
-        //   const extPrice = parseFloat(ethers.utils.formatUnits(externalApiPrice, 8));
-
-        //   if (extPrice > 0) {
-        //     discrepancyPercentage = Math.abs((aavePrice - extPrice) / extPrice) * 100;
-        //   }
-        // }
 
         const priceData: PriceData = {
           assetAddress,
